@@ -26,7 +26,7 @@ import (
 )
 
 func TestStdLogger(t *testing.T) {
-	logger := NewStdLogger(false, false, false, false, false)
+	logger := NewStdLogger(false, false, false, false, false, false)
 
 	flags := logger.logger.Flags()
 	if flags != 0 {
@@ -43,7 +43,7 @@ func TestStdLogger(t *testing.T) {
 }
 
 func TestStdLoggerWithDebugTraceAndTime(t *testing.T) {
-	logger := NewStdLogger(true, true, true, false, false)
+	logger := NewStdLogger(true, false, true, true, false, false)
 
 	flags := logger.logger.Flags()
 	if flags != log.LstdFlags|log.Lmicroseconds {
@@ -61,42 +61,42 @@ func TestStdLoggerWithDebugTraceAndTime(t *testing.T) {
 
 func TestStdLoggerNotice(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, false, false, false, false)
+		logger := NewStdLogger(false, false, false, false, false, false)
 		logger.Noticef("foo")
 	}, "[INF] foo\n")
 }
 
 func TestStdLoggerNoticeWithColor(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, false, false, true, false)
+		logger := NewStdLogger(false, false, false, false, true, false)
 		logger.Noticef("foo")
 	}, "[\x1b[32mINF\x1b[0m] foo\n")
 }
 
 func TestStdLoggerDebug(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, true, false, false, false)
+		logger := NewStdLogger(false, false, true, false, false, false)
 		logger.Debugf("foo %s", "bar")
 	}, "[DBG] foo bar\n")
 }
 
 func TestStdLoggerDebugWithOutDebug(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, false, false, false, false)
+		logger := NewStdLogger(false, false, false, false, false, false)
 		logger.Debugf("foo")
 	}, "")
 }
 
 func TestStdLoggerTrace(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, false, true, false, false)
+		logger := NewStdLogger(false, false, false, true, false, false)
 		logger.Tracef("foo")
 	}, "[TRC] foo\n")
 }
 
 func TestStdLoggerTraceWithOutDebug(t *testing.T) {
 	expectOutput(t, func() {
-		logger := NewStdLogger(false, false, false, false, false)
+		logger := NewStdLogger(false, false, false, false, false, false)
 		logger.Tracef("foo")
 	}, "")
 }
@@ -106,7 +106,7 @@ func TestFileLogger(t *testing.T) {
 	file := createFileAtDir(t, tmpDir, "nats-server:log_")
 	file.Close()
 
-	logger := NewFileLogger(file.Name(), false, false, false, false)
+	logger := NewFileLogger(file.Name(), false, false, false, false, false)
 	defer logger.Close()
 	logger.Noticef("foo")
 
@@ -125,7 +125,7 @@ func TestFileLogger(t *testing.T) {
 	file = createFileAtDir(t, tmpDir, "nats-server:log_")
 	file.Close()
 
-	logger = NewFileLogger(file.Name(), true, true, true, true)
+	logger = NewFileLogger(file.Name(), true, true, false, true, true)
 	defer logger.Close()
 	logger.Errorf("foo")
 
@@ -165,7 +165,7 @@ func TestFileLogger(t *testing.T) {
 
 func TestFileLoggerSizeLimit(t *testing.T) {
 	// Create std logger
-	logger := NewStdLogger(true, false, false, false, true)
+	logger := NewStdLogger(true, false, false, false, false, true)
 	if err := logger.SetSizeLimit(1000); err == nil ||
 		!strings.Contains(err.Error(), "only for file logger") {
 		t.Fatalf("Expected error about being able to use only for file logger, got %v", err)
@@ -177,7 +177,7 @@ func TestFileLoggerSizeLimit(t *testing.T) {
 	file := createFileAtDir(t, tmpDir, "log_")
 	file.Close()
 
-	logger = NewFileLogger(file.Name(), true, false, false, true)
+	logger = NewFileLogger(file.Name(), true, false, false, false, true)
 	defer logger.Close()
 	logger.SetSizeLimit(1000)
 
@@ -210,7 +210,7 @@ func TestFileLoggerSizeLimit(t *testing.T) {
 	// Recreate logger and don't set a limit
 	file = createFileAtDir(t, tmpDir, "log_")
 	file.Close()
-	logger = NewFileLogger(file.Name(), true, false, false, true)
+	logger = NewFileLogger(file.Name(), true, false, false, false, true)
 	defer logger.Close()
 	for i := 0; i < 50; i++ {
 		logger.Noticef("This is line %d in the log file", i+1)
@@ -246,7 +246,7 @@ func TestFileLoggerSizeLimit(t *testing.T) {
 		t.Fatalf("Should be statement about rotated log and backup name, got %s", content)
 	}
 
-	logger = NewFileLogger(file.Name(), true, false, false, true)
+	logger = NewFileLogger(file.Name(), true, false, false, false, true)
 	defer logger.Close()
 	logger.SetSizeLimit(1000)
 

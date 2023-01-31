@@ -39,10 +39,13 @@ type Logger struct {
 }
 
 // NewStdLogger creates a logger with output directed to Stderr
-func NewStdLogger(time, debug, trace, colors, pid bool) *Logger {
+func NewStdLogger(time, utc, debug, trace, colors, pid bool) *Logger {
 	flags := 0
 	if time {
 		flags = log.LstdFlags | log.Lmicroseconds
+		if utc {
+			flags |= log.LUTC
+		}
 	}
 
 	pre := ""
@@ -66,10 +69,13 @@ func NewStdLogger(time, debug, trace, colors, pid bool) *Logger {
 }
 
 // NewFileLogger creates a logger with output directed to a file
-func NewFileLogger(filename string, time, debug, trace, pid bool) *Logger {
+func NewFileLogger(filename string, time, utc, debug, trace, pid bool) *Logger {
 	flags := 0
 	if time {
 		flags = log.LstdFlags | log.Lmicroseconds
+		if utc {
+			flags |= log.LUTC
+		}
 	}
 
 	pre := ""

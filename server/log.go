@@ -66,7 +66,7 @@ func (s *Server) ConfigureLogger() {
 	}
 
 	if opts.LogFile != "" {
-		log = srvlog.NewFileLogger(opts.LogFile, opts.Logtime, opts.Debug, opts.Trace, true)
+		log = srvlog.NewFileLogger(opts.LogFile, opts.Logtime, opts.LogtimeUTC, opts.Debug, opts.Trace, true)
 		if opts.LogSizeLimit > 0 {
 			if l, ok := log.(*srvlog.Logger); ok {
 				l.SetSizeLimit(opts.LogSizeLimit)
@@ -84,7 +84,7 @@ func (s *Server) ConfigureLogger() {
 		if err != nil || (stat.Mode()&os.ModeCharDevice) == 0 {
 			colors = false
 		}
-		log = srvlog.NewStdLogger(opts.Logtime, opts.Debug, opts.Trace, colors, true)
+		log = srvlog.NewStdLogger(opts.Logtime, opts.LogtimeUTC, opts.Debug, opts.Trace, colors, true)
 	}
 
 	s.SetLoggerV2(log, opts.Debug, opts.Trace, opts.TraceVerbose)
@@ -154,8 +154,10 @@ func (s *Server) ReOpenLogFile() {
 	if opts.LogFile == "" {
 		s.Noticef("File log re-open ignored, not a file logger")
 	} else {
-		fileLog := srvlog.NewFileLogger(opts.LogFile,
-			opts.Logtime, opts.Debug, opts.Trace, true)
+		fileLog := srvlog.NewFileLogger(
+			opts.LogFile, opts.Logtime, opts.LogtimeUTC,
+			opts.Debug, opts.Trace, true,
+		)
 		s.SetLogger(fileLog, opts.Debug, opts.Trace)
 		if opts.LogSizeLimit > 0 {
 			fileLog.SetSizeLimit(opts.LogSizeLimit)
